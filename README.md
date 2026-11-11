@@ -5,9 +5,11 @@
 
 `net/http` middleware for the `Idempotency-Key` header: a retried request gets the first answer back instead of running twice.
 
+> **From the ENOMOTIA team.** We build [ENOMOTIA](https://enomotia.net), a strategy game set in ancient Greece that you play in the browser and on your phone. Along the way we keep meeting problems that every web and mobile product meets sooner or later. When one of our fixes turns out to be useful beyond the game, we clean it up and publish it here so you don't have to solve it again. Issues, ideas and pull requests are welcome: see [CONTRIBUTING](https://github.com/EnomotiaGame/.github/blob/main/CONTRIBUTING.md).
+
 A phone loses answers. The user taps "pay", the request reaches your server, the payment goes through, and the response dies in a tunnel. The client cannot tell a lost answer from a lost request, so it retries. Without idempotency, the retry is a second payment, or an "already paid" error for something that worked.
 
-The middleware began in [ENOMOTIA](https://enomotia.net), a browser and mobile strategy game, where flaky mobile connections were sending "build" and "attack" twice. We extracted it because nothing we found handled all of this:
+This middleware came out of ENOMOTIA, where flaky mobile connections were sending "build" and "attack" twice. We extracted it because nothing we found handled all of this:
 
 - **Byte-for-byte replay.** A finished request's status, `Content-Type` and body are stored and replayed, marked `Idempotent-Replayed: true`. Refusals are replayed too: "insufficient funds" is the command's answer.
 - **Request fingerprinting.** The key is bound to a SHA-256 of the method, path, query and body. Reusing a key for a different request is a client bug. It gets `422`, never someone else's answer.
@@ -114,6 +116,10 @@ IDEMPOTENCY_TEST_DATABASE_URL=postgres://localhost/idempotency_test go test ./pg
 ```
 
 The `pgstore` tests skip without a database. Each test makes its own table and drops it.
+
+## Contributing
+
+Found a bug, hit an edge case, wrote a store for Redis or DynamoDB? Open an issue or a pull request. A new store is welcome as long as it passes `storetest`. Security problems go through [private vulnerability reporting](https://github.com/EnomotiaGame/idempotency/security/advisories/new), not public issues. The details are in [CONTRIBUTING](https://github.com/EnomotiaGame/.github/blob/main/CONTRIBUTING.md).
 
 ## License
 
